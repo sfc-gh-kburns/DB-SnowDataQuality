@@ -29,87 +29,43 @@ def check_database_exists(conn: Any, database_name: str = "DB_SNOWTOOLS") -> boo
 
 
 def setup_database_objects(conn: Any) -> bool:
-    """Complete setup of all required database objects."""
+    """Verify that all required database objects exist (database and tables should be created by setup script)."""
     database_name = "DB_SNOWTOOLS"
     schema_name = "PUBLIC"
     
-    setup_actions = []
-    
-    # Check if database exists
+    # Check if database exists (should already be created by setup script)
     if not check_database_exists(conn, database_name):
-        try:
-            # Create database and schema
-            create_db_sql = f"CREATE DATABASE IF NOT EXISTS {database_name}"
-            create_schema_sql = f"CREATE SCHEMA IF NOT EXISTS {database_name}.{schema_name}"
-            
-            if hasattr(conn, 'sql'):  # Snowpark session
-                conn.sql(create_db_sql).collect()
-                conn.sql(create_schema_sql).collect()
-            else:  # Regular connection
-                cursor = conn.cursor()
-                cursor.execute(create_db_sql)
-                cursor.execute(create_schema_sql)
-            
-            setup_actions.append(f"Created database {database_name}")
-        except Exception as e:
-            st.error(f"Error creating database: {str(e)}")
-            return False
+        st.error(f"Database {database_name} not found. Please run the Setup_Script.sql first.")
+        return False
     
-    # Create tracking tables
+    # Verify tracking tables exist (should already be created by setup script)
     try:
-        # DATA_DESCRIPTION_HISTORY table
-        history_table_sql = f"""
-        CREATE TABLE IF NOT EXISTS {database_name}.{schema_name}.DATA_DESCRIPTION_HISTORY (
-            HISTORY_ID NUMBER AUTOINCREMENT PRIMARY KEY,
-            DATABASE_NAME VARCHAR(255) NOT NULL,
-            SCHEMA_NAME VARCHAR(255) NOT NULL,
-            OBJECT_TYPE VARCHAR(50) NOT NULL,
-            OBJECT_NAME VARCHAR(255) NOT NULL,
-            COLUMN_NAME VARCHAR(255),
-            BEFORE_DESCRIPTION TEXT,
-            AFTER_DESCRIPTION TEXT,
-            SQL_EXECUTED TEXT,
-            UPDATED_BY VARCHAR(255) DEFAULT CURRENT_USER(),
-            UPDATED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP()
-        )
-        """
-        
-        # DATA_QUALITY_RESULTS table
-        quality_table_sql = f"""
-        CREATE TABLE IF NOT EXISTS {database_name}.{schema_name}.DATA_QUALITY_RESULTS (
-            RESULT_ID NUMBER AUTOINCREMENT PRIMARY KEY,
-            MONITOR_NAME VARCHAR(255) NOT NULL,
-            DATABASE_NAME VARCHAR(255) NOT NULL,
-            SCHEMA_NAME VARCHAR(255) NOT NULL,
-            TABLE_NAME VARCHAR(255) NOT NULL,
-            COLUMN_NAME VARCHAR(255),
-            METRIC_VALUE NUMBER,
-            METRIC_UNIT VARCHAR(50),
-            THRESHOLD_MIN NUMBER,
-            THRESHOLD_MAX NUMBER,
-            STATUS VARCHAR(20),
-            MEASUREMENT_TIME TIMESTAMP_LTZ,
-            RECORD_INSERTED_AT TIMESTAMP_LTZ DEFAULT CURRENT_TIMESTAMP(),
-            SQL_EXECUTED TEXT
-        )
+        # Check if required tables exist
+        tables_check_sql = f"""
+        SELECT COUNT(*) as table_count
+        FROM INFORMATION_SCHEMA.TABLES 
+        WHERE TABLE_SCHEMA = '{schema_name}' 
+        AND TABLE_NAME IN ('DATA_DESCRIPTION_HISTORY', 'DATA_QUALITY_RESULTS')
         """
         
         if hasattr(conn, 'sql'):  # Snowpark session
-            conn.sql(history_table_sql).collect()
-            conn.sql(quality_table_sql).collect()
+            result = conn.sql(tables_check_sql).collect()
+            table_count = result[0]['TABLE_COUNT']
         else:  # Regular connection
             cursor = conn.cursor()
-            cursor.execute(history_table_sql)
-            cursor.execute(quality_table_sql)
+            cursor.execute(tables_check_sql)
+            result = cursor.fetchone()
+            table_count = result[0]
         
-        setup_actions.append("Created tracking tables")
+        if table_count < 2:
+            st.error(f"Required tracking tables not found in {database_name}.{schema_name}. Please run the Setup_Script.sql first.")
+            return False
         
     except Exception as e:
-        st.error(f"Error creating tables: {str(e)}")
+        st.error(f"Error verifying tables: {str(e)}")
         return False
     
-    # Show setup messages if something was created
-    # Return True - setup status is now shown in sidebar
+    # All required objects exist
     return True
 
 

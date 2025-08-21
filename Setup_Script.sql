@@ -190,6 +190,14 @@ CREATE OR REPLACE GIT REPOSITORY db_snowdq_repo
 -- Fetch the latest code from the repository
 ALTER GIT REPOSITORY db_snowdq_repo FETCH;
 
+-- Grant necessary privileges to ACCOUNTADMIN for Streamlit creation
+GRANT USAGE ON SCHEMA DB_SNOWTOOLS.CODE TO ROLE ACCOUNTADMIN;
+GRANT CREATE STREAMLIT ON SCHEMA DB_SNOWTOOLS.CODE TO ROLE ACCOUNTADMIN;
+GRANT CREATE STAGE ON SCHEMA DB_SNOWTOOLS.CODE TO ROLE ACCOUNTADMIN;
+
+-- Switch to ACCOUNTADMIN to create Streamlit app
+USE ROLE ACCOUNTADMIN;
+
 -- Create the Streamlit application
 CREATE OR REPLACE STREAMLIT Data_Quality_And_Documentation
   ROOT_LOCATION = '@db_snowdq_repo/branches/main'
