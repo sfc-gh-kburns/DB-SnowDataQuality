@@ -90,18 +90,8 @@ SELECT 'Step 2/8: Created warehouse and set user defaults' AS STATUS;
 -- Switch to the application role to create all objects
 USE ROLE db_snowdq_role;
 
--- Create the main application database
-CREATE OR REPLACE DATABASE db_snowdq
-COMMENT = 'Main database for Snowflake Data Quality & Documentation application';
 
--- Use the main database
-USE DATABASE db_snowdq;
-
--- Create the main schema
-CREATE OR REPLACE SCHEMA public
-COMMENT = 'Main schema for Streamlit application objects';
-
--- Create the tracking database (DB_SNOWTOOLS)
+-- Create the database (DB_SNOWTOOLS)
 CREATE OR REPLACE DATABASE DB_SNOWTOOLS
 COMMENT = 'Database for Snowflake Data Quality & Documentation application tracking';
 
@@ -110,6 +100,10 @@ USE DATABASE DB_SNOWTOOLS;
 
 -- Create the tracking schema
 CREATE OR REPLACE SCHEMA PUBLIC
+COMMENT = 'Public schema for application tracking tables';
+
+-- Create the code schema
+CREATE OR REPLACE SCHEMA CODE
 COMMENT = 'Public schema for application tracking tables';
 
 SELECT 'Step 3/8: Switched to application role and created databases/schemas' AS STATUS;
@@ -184,8 +178,8 @@ SELECT 'Step 5/8: Created GitHub API integration' AS STATUS;
 
 -- Switch back to application role and database
 USE ROLE db_snowdq_role;
-USE DATABASE db_snowdq;
-USE SCHEMA public;
+USE DATABASE DB_SNOWTOOLS;
+USE SCHEMA CODE;
 
 -- Create Git repository object
 CREATE OR REPLACE GIT REPOSITORY db_snowdq_repo
@@ -197,7 +191,7 @@ CREATE OR REPLACE GIT REPOSITORY db_snowdq_repo
 ALTER GIT REPOSITORY db_snowdq_repo FETCH;
 
 -- Create the Streamlit application
-CREATE OR REPLACE STREAMLIT db_snowdq_app
+CREATE OR REPLACE STREAMLIT Data_Quality_And_Documentation
   ROOT_LOCATION = '@db_snowdq_repo/branches/main'
   MAIN_FILE = '/app.py'
   QUERY_WAREHOUSE = db_snowdq_wh
