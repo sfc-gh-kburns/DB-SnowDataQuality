@@ -16,7 +16,7 @@
 
 ## 📺 Demo & Overview
 
-[<img src="https://img.youtube.com/vi/bF6FAMeGEZc/maxresdefault.jpg" width="60%">](https://youtu.be/bF6FAMeGEZc)
+[<img src="https://img.youtube.com/vi/HPIIDNZ5fQ0/maxresdefault.jpg" width="60%">](https://youtu.be/HPIIDNZ5fQ0)
 
 *Click to watch the full demo and feature walkthrough*
 
