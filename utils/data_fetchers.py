@@ -15,6 +15,7 @@ def get_databases(_conn: Any) -> List[str]:
         query = """
         SELECT DATABASE_NAME 
         FROM INFORMATION_SCHEMA.DATABASES 
+        WHERE TYPE = 'STANDARD'
         ORDER BY DATABASE_NAME
         """
         
