@@ -23,7 +23,7 @@
 --
 -- GitHub Repository: https://github.com/sfc-gh-kburns/DB-SnowDataQuality
 -- ========================================================================================
-
+-- drop database DB_SNOWTOOLS;
 -- Set context to ensure we're using the right role
 USE ROLE ACCOUNTADMIN;
 
@@ -88,7 +88,8 @@ SELECT 'Step 2/8: Created warehouse and set user defaults' AS STATUS;
 -- ========================================================================================
 
 -- Switch to the application role to create all objects
-USE ROLE db_snowdq_role;
+-- Commented out to keep running at AccountAdmin.   Enhancements coming soon to run as the application role.
+-- USE ROLE db_snowdq_role;
 
 
 -- Create the database (DB_SNOWTOOLS)
@@ -177,7 +178,7 @@ SELECT 'Step 5/8: Created GitHub API integration' AS STATUS;
 -- ========================================================================================
 
 -- Switch back to application role and database
-USE ROLE db_snowdq_role;
+-- USE ROLE db_snowdq_role;
 USE DATABASE DB_SNOWTOOLS;
 USE SCHEMA CODE;
 
@@ -199,11 +200,20 @@ GRANT CREATE STAGE ON SCHEMA DB_SNOWTOOLS.CODE TO ROLE ACCOUNTADMIN;
 USE ROLE ACCOUNTADMIN;
 
 -- Create the Streamlit application
+-- This create streamlit statement copies the code from the repo to Streamlit in Snowflake for you
 CREATE OR REPLACE STREAMLIT Data_Quality_And_Documentation
-  ROOT_LOCATION = '@db_snowdq_repo/branches/main'
-  MAIN_FILE = '/app.py'
+  FROM  '@db_snowdq_repo/branches/main'
+  MAIN_FILE = 'app.py'
   QUERY_WAREHOUSE = db_snowdq_wh
   COMMENT = 'Snowflake Data Quality & Documentation Streamlit Application';
+
+
+-- This create streamlit statement would run the Streamlit app from the Git repository
+-- CREATE OR REPLACE STREAMLIT Data_Quality_And_Documentation
+--   ROOT_LOCATION = '@db_snowdq_repo/branches/main'
+--   MAIN_FILE = '/app.py'
+--   QUERY_WAREHOUSE = db_snowdq_wh
+--   COMMENT = 'Snowflake Data Quality & Documentation Streamlit Application';
 
 SELECT 'Step 6/8: Created Git repository and deployed Streamlit app' AS STATUS;
 
@@ -212,57 +222,60 @@ SELECT 'Step 6/8: Created Git repository and deployed Streamlit app' AS STATUS;
 -- ========================================================================================
 
 -- Show the role and its grants for verification
-SHOW GRANTS TO ROLE db_snowdq_role;
+-- SHOW GRANTS TO ROLE db_snowdq_role;
 
 -- Display the Streamlit app information
-SHOW STREAMLITS IN SCHEMA db_snowdq.public;
+--SHOW STREAMLITS IN SCHEMA db_snowdq.code;
 
 -- Display completion messages and next steps
 SELECT 'Step 7/7: Setup completed successfully!' AS STATUS
 UNION ALL
 SELECT '========================================' AS STATUS
 UNION ALL
-SELECT 'SETUP COMPLETE - NEXT STEPS:' AS STATUS
+SELECT 'SETUP COMPLETE' AS STATUS
+--SELECT 'SETUP COMPLETE - NEXT STEPS:' AS STATUS
 UNION ALL
 SELECT '========================================' AS STATUS
 UNION ALL
-SELECT '1. Grant the db_snowdq_role to users who need access:' AS STATUS
-UNION ALL
-SELECT '   GRANT ROLE db_snowdq_role TO USER <your_username>;' AS STATUS
-UNION ALL
-SELECT '' AS STATUS
-UNION ALL
-SELECT '2. Optionally set as default role for users:' AS STATUS
-UNION ALL
-SELECT '   ALTER USER <your_username> SET DEFAULT_ROLE = db_snowdq_role;' AS STATUS
-UNION ALL
-SELECT '' AS STATUS
-UNION ALL
-SELECT '3. Grant access to your data databases/schemas:' AS STATUS
-UNION ALL
-SELECT '   GRANT USAGE ON DATABASE <your_data_db> TO ROLE db_snowdq_role;' AS STATUS
-UNION ALL
-SELECT '   GRANT USAGE ON ALL SCHEMAS IN DATABASE <your_data_db> TO ROLE db_snowdq_role;' AS STATUS
-UNION ALL
-SELECT '   GRANT SELECT ON ALL TABLES IN DATABASE <your_data_db> TO ROLE db_snowdq_role;' AS STATUS
-UNION ALL
-SELECT '   GRANT SELECT ON ALL VIEWS IN DATABASE <your_data_db> TO ROLE db_snowdq_role;' AS STATUS
-UNION ALL
-SELECT '' AS STATUS
-UNION ALL
-SELECT '4. For description updates, also grant MODIFY privileges:' AS STATUS
-UNION ALL
-SELECT '   GRANT MODIFY ON ALL TABLES IN DATABASE <your_data_db> TO ROLE db_snowdq_role;' AS STATUS
-UNION ALL
-SELECT '   GRANT MODIFY ON ALL VIEWS IN DATABASE <your_data_db> TO ROLE db_snowdq_role;' AS STATUS
-UNION ALL
-SELECT '' AS STATUS
-UNION ALL
-SELECT '5. Access your Streamlit app at:' AS STATUS
-UNION ALL
-SELECT '   Snowsight > Projects > Streamlit > db_snowdq_app' AS STATUS
-UNION ALL
-SELECT '' AS STATUS
+SELECT 'This app is running as AccountAdmin.  Enhancements coming soon to run as the application role.' AS STATUS
+-- UNION ALL
+-- SELECT '1. Grant the db_snowdq_role to users who need access:' AS STATUS
+-- UNION ALL
+-- SELECT '   GRANT ROLE db_snowdq_role TO USER <your_username>;' AS STATUS
+-- UNION ALL
+-- SELECT '' AS STATUS
+-- UNION ALL
+-- SELECT '2. Optionally set as default role for users:' AS STATUS
+-- UNION ALL
+-- SELECT '   ALTER USER <your_username> SET DEFAULT_ROLE = db_snowdq_role;' AS STATUS
+-- UNION ALL
+-- SELECT '' AS STATUS
+-- UNION ALL
+-- SELECT '3. Grant access to your data databases/schemas:' AS STATUS
+-- UNION ALL
+-- SELECT '   GRANT USAGE ON DATABASE <your_data_db> TO ROLE db_snowdq_role;' AS STATUS
+-- UNION ALL
+-- SELECT '   GRANT USAGE ON ALL SCHEMAS IN DATABASE <your_data_db> TO ROLE db_snowdq_role;' AS STATUS
+-- UNION ALL
+-- SELECT '   GRANT SELECT ON ALL TABLES IN DATABASE <your_data_db> TO ROLE db_snowdq_role;' AS STATUS
+-- UNION ALL
+-- SELECT '   GRANT SELECT ON ALL VIEWS IN DATABASE <your_data_db> TO ROLE db_snowdq_role;' AS STATUS
+-- UNION ALL
+-- SELECT '' AS STATUS
+-- UNION ALL
+-- SELECT '4. For description updates, also grant MODIFY privileges:' AS STATUS
+-- UNION ALL
+-- SELECT '   GRANT MODIFY ON ALL TABLES IN DATABASE <your_data_db> TO ROLE db_snowdq_role;' AS STATUS
+-- UNION ALL
+-- SELECT '   GRANT MODIFY ON ALL VIEWS IN DATABASE <your_data_db> TO ROLE db_snowdq_role;' AS STATUS
+-- UNION ALL
+-- SELECT '' AS STATUS
+-- UNION ALL
+-- SELECT '5. Access your Streamlit app at:' AS STATUS
+-- UNION ALL
+-- SELECT '   Snowsight > Projects > Streamlit > db_snowdq_app' AS STATUS
+-- UNION ALL
+-- SELECT '' AS STATUS
 UNION ALL
 SELECT 'The application is now ready to use!' AS STATUS;
 
