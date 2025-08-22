@@ -25,7 +25,6 @@
 ## Table of Contents
 
 - [Purpose & Value Proposition](#purpose--value-proposition)
-- [Architecture & Project Structure](#architecture--project-structure)
 - [Application Flow](#application-flow)
 - [Core Features](#core-features)
 - [Quick Start](#quick-start)
@@ -35,9 +34,6 @@
 - [Technical Architecture](#technical-architecture)
 - [Troubleshooting](#troubleshooting)
 - [Best Practices](#best-practices)
-- [Version History](#version-history)
-- [Contributing](#contributing)
-- [Support & Resources](#support--resources)
 
 ---
 
@@ -60,56 +56,7 @@ This application transforms your Snowflake environment into a **well-documented,
 - **Data Leaders**: Monitor governance KPIs and compliance metrics
 - **Platform Teams**: Deploy enterprise-grade data governance tools
 
----
 
-## Architecture & Project Structure
-
-### Modular Architecture
-
-This application follows a **clean, modular architecture** that was refactored from a monolithic 4,000+ line file into maintainable, scalable components:
-
-```
-db-snowdq/
-├── app.py                          # Main application entry point (232 lines)
-├── README.md                       # This comprehensive documentation
-├── environment.yml                 # SiS-compatible dependencies
-│
-├── components/                     # Reusable UI Components
-│   ├── __init__.py
-│   └── styles.py                      # CSS styling & theme management (285 lines)
-│
-├── pages/                          # Individual Page Modules
-│   ├── __init__.py
-│   ├── home.py                     # Executive dashboard & KPIs
-│   ├── data_descriptions.py        # AI-powered description generation
-│   ├── data_quality.py            # Data Metric Functions (DMF) configuration
-│   ├── data_contacts.py           # Data governance contact management
-│   └── history.py                 # Historical tracking & audit trails
-│
-├── utils/                          # Utility Modules
-│   ├── __init__.py
-│   ├── database.py                # Snowflake connections & SQL utilities
-│   ├── data_fetchers.py           # Cached data retrieval functions
-│   ├── ai_utils.py                # Snowflake Cortex LLM integration
-│   ├── setup.py                   # Database setup & session management
-│   ├── kpi_utils.py               # KPI calculations & metrics
-│   ├── description_helpers.py     # Description generation workflows
-│   └── dmf_utils.py               # Data Metric Functions utilities
-│
-└── sql/                           # Database Setup Scripts
-    ├── setup_db_snowtools.sql        # Core database objects
-    └── setup_app_permissions.sql     # Required permissions
-```
-
-### Migration Benefits
-
-| **Before (Monolithic)** | **After (Modular)** |
-|--------------------------|----------------------|
-| Single 4,000+ line file | Clean separation of concerns |
-| Difficult to maintain | Easy to maintain and extend |
-| Hard to test components | Testable individual modules |
-| Poor code organization | Professional structure |
-| Single developer bottleneck | Multiple developers can contribute |
 
 ---
 
@@ -238,10 +185,7 @@ Complete audit trail for compliance and governance:
 
 ### Option 1: Streamlit in Snowflake (Recommended)
 
-1. **Upload Files**: Upload `app.py`, `pages/`, `components/`, `utils/` directories, and `environment.yml` to your Snowflake stage
-2. **Create App**: Create the Streamlit app in Snowflake
-3. **Run**: Launch the app - it will auto-setup required database objects
-4. **Grant Permissions**: Configure permissions as needed (see permissions section)
+1. Copy the SQL from the [Setup_Script.sql](Setup_Script.sql) and run in your Snowflake Environment. 
 
 ### Option 2: Local Development
 
@@ -253,7 +197,7 @@ cd db-snowdq
 # Install dependencies
 pip install -r requirements.txt
 
-# Configure Snowflake connection
+# Configure Snowflake connection - This is a REQUIREMENT
 # Create ~/.snowflake/connections.toml with your credentials
 
 # Run the application
@@ -270,6 +214,8 @@ The app automatically creates required database objects on first run:
 ---
 
 ## Required Permissions
+
+### The initial version of this app, if installed from the Setup_Script.sql, runs as AccountAdmin.   
 
 ### Core System Access
 
@@ -454,66 +400,8 @@ GRANT ALL PRIVILEGES ON TABLE your_database.your_schema.your_table TO ROLE your_
 
 ---
 
-## Version History
 
-### v2.0 - Modular Architecture & Enhanced Features
-- **Modular Refactor**: Clean separation from 4,000+ line monolith
-- **SiS Optimization**: Full compatibility with Streamlit in Snowflake
-- **INFORMATION_SCHEMA**: Primary queries for better permission handling
-- **Enhanced UI**: Modern KPI dashboard and improved navigation
-- **Complete DMF**: Comprehensive data quality monitoring dashboard
-- **Contact Management**: Full data governance contact system
-- **History Tracking**: Complete audit trail for all operations
-- **Error Handling**: Graceful degradation with helpful messages
 
-### v1.0 - Core Features
-- AI-powered description generation
-- Basic DMF setup
-- Multi-page navigation
-- Local development support
-
----
-
-## Contributing
-
-This application follows Snowflake best practices and is designed for easy extension:
-
-### Development Setup
-
-```bash
-# Clone and setup
-git clone <repository-url>
-cd db-snowdq
-pip install -r requirements.txt
-
-# Run locally
-streamlit run app.py
-```
-
-### Adding New Features
-
-- **Add LLM Models**: Update `AVAILABLE_MODELS` list in `utils/ai_utils.py`
-- **Extend DMF Support**: Add new metric types in `utils/dmf_utils.py`
-- **New Pages**: Follow the pattern in `pages/` directory
-- **UI Improvements**: Maintain the modern, gradient-styled design system
-
-### Testing Guidelines
-
-1. Test in both SiS and local environments
-2. Verify all imports and dependencies
-3. Check error handling and edge cases
-4. Maintain backward compatibility
-
----
-
-## Support & Resources
-
-- **In-App Documentation**: Check the Documentation tab within the app
-- **Setup Scripts**: Review `sql/setup_*.sql` files for manual setup
-- **Troubleshooting**: Use the debug information provided by the app
-- **Permissions**: Verify against the detailed permissions section above
-
----
 
 <div align="center">
 
