@@ -43,7 +43,7 @@ def setup_database_objects(conn: Any) -> bool:
         # Check if required tables exist
         tables_check_sql = f"""
         SELECT COUNT(*) as table_count
-        FROM INFORMATION_SCHEMA.TABLES 
+        FROM DB_SNOWTOOLS.INFORMATION_SCHEMA.TABLES 
         WHERE TABLE_SCHEMA = '{schema_name}' 
         AND TABLE_NAME IN ('DATA_DESCRIPTION_HISTORY', 'DATA_QUALITY_RESULTS')
         """
