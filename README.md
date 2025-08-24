@@ -27,6 +27,7 @@
 - [Purpose & Value Proposition](#purpose--value-proposition)
 - [Application Flow](#application-flow)
 - [Core Features](#core-features)
+- [Stored Procedure: Code-First Documentation](#stored-procedure-code-first-documentation)
 - [Quick Start](#quick-start)
 - [Required Permissions](#required-permissions)
 - [User Guide](#user-guide)
