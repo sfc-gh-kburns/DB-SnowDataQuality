@@ -181,6 +181,163 @@ Complete audit trail for compliance and governance:
 
 ---
 
+## Stored Procedure: Code-First Documentation
+
+### GENERATE_AI_DESCRIPTIONS Procedure
+
+For users who prefer **code-first approaches** or need to **integrate documentation generation into automated workflows**, we provide a powerful stored procedure that replicates all the functionality of the Data Descriptions tab.
+
+#### Overview
+
+The `GENERATE_AI_DESCRIPTIONS` stored procedure provides the same AI-powered documentation capabilities as the Streamlit app, but in pure SQL/JavaScript for seamless integration into your data pipelines, CI/CD processes, or automated governance workflows.
+
+#### Key Features
+
+- **🔄 Same AI Logic**: Uses identical prompts and models as the Streamlit app
+- **📊 Bulk Processing**: Process multiple tables and all their columns in a single call
+- **🎯 Flexible Targeting**: Generate table descriptions, column descriptions, or both
+- **🤖 Multi-Model Support**: Works with all Snowflake Cortex models
+- **⚡ High Performance**: JavaScript-based for optimal string handling and execution
+- **🔒 Enterprise Ready**: Handles cross-database queries and complex permissions
+
+#### Installation
+
+The stored procedure is automatically created when you run the setup script, or you can create it manually:
+
+```sql
+-- Run the stored procedure creation script
+@sql/generate_ai_descriptions.sql
+```
+
+#### Usage
+
+```sql
+-- Basic syntax
+CALL GENERATE_AI_DESCRIPTIONS(
+    DATABASE_NAME,    -- Target database
+    SCHEMA_NAME,      -- Target schema  
+    TABLE_NAMES,      -- Array of table names
+    MODEL_NAME,       -- Cortex model (optional, default: 'llama3.1-8b')
+    GENERATE_TYPE     -- 'TABLE', 'COLUMN', or 'BOTH' (optional, default: 'TABLE')
+);
+```
+
+#### Examples
+
+```sql
+-- Generate table descriptions only
+CALL GENERATE_AI_DESCRIPTIONS(
+    'SALES_DB', 
+    'ANALYTICS', 
+    ['CUSTOMER_ORDERS', 'PRODUCT_CATALOG'], 
+    'claude-4-sonnet', 
+    'TABLE'
+);
+
+-- Generate both table and column descriptions
+CALL GENERATE_AI_DESCRIPTIONS(
+    'CALL_CENTER', 
+    'TRANSCRIPTS', 
+    ['CALL_TRANSCRIPTS'], 
+    'claude-4-sonnet', 
+    'BOTH'
+);
+
+-- Generate only column descriptions with different model
+CALL GENERATE_AI_DESCRIPTIONS(
+    'RETAIL_DEMO', 
+    'SALES', 
+    ['ECOM_SALES', 'STORE_SALES'], 
+    'mistral-large2', 
+    'COLUMN'
+);
+```
+
+#### Parameters
+
+| Parameter | Type | Description | Default |
+|-----------|------|-------------|---------|
+| `DATABASE_NAME` | STRING | Target database name | Required |
+| `SCHEMA_NAME` | STRING | Target schema name | Required |
+| `TABLE_NAMES` | ARRAY | Array of table names to process | Required |
+| `MODEL_NAME` | STRING | Snowflake Cortex model to use | `'llama3.1-8b'` |
+| `GENERATE_TYPE` | STRING | What to generate: `'TABLE'`, `'COLUMN'`, or `'BOTH'` | `'TABLE'` |
+
+#### Supported Models
+
+All Snowflake Cortex models are supported:
+- `claude-4-sonnet` (Premium reasoning)
+- `mistral-large2` (Balanced performance) 
+- `llama3.1-8b` (Fast and efficient)
+- `llama3.1-70b` (Enhanced reasoning)
+- `snowflake-arctic` (Snowflake optimized)
+
+#### Integration Use Cases
+
+**CI/CD Pipelines**
+```sql
+-- Automatically document new tables after deployment
+CALL GENERATE_AI_DESCRIPTIONS('PROD_DB', 'NEW_SCHEMA', ['TABLE1', 'TABLE2'], 'claude-4-sonnet', 'BOTH');
+```
+
+**Data Pipeline Automation**
+```sql
+-- Document tables as part of your dbt post-hooks or data pipeline
+CALL GENERATE_AI_DESCRIPTIONS('{{ var("database") }}', '{{ var("schema") }}', ['{{ this.name }}'], 'llama3.1-8b', 'BOTH');
+```
+
+**Scheduled Documentation**
+```sql
+-- Create tasks to periodically update documentation
+CREATE TASK WEEKLY_DOCUMENTATION
+WAREHOUSE = COMPUTE_WH
+SCHEDULE = 'USING CRON 0 9 * * 1 UTC'  -- Every Monday at 9 AM
+AS
+CALL GENERATE_AI_DESCRIPTIONS('ANALYTICS_DB', 'MARTS', ['DIM_CUSTOMER', 'FACT_ORDERS'], 'claude-4-sonnet', 'BOTH');
+```
+
+#### Return Values
+
+The procedure returns a detailed summary:
+```
+AI Description Generation Complete! 
+Processed 2 table(s). 
+Generated 2 table description(s) and 15 column description(s). 
+Model used: claude-4-sonnet. Generation type: BOTH.
+```
+
+#### Technical Implementation
+
+- **Language**: JavaScript for optimal string handling and performance
+- **Error Handling**: Continues processing even if individual tables/columns fail
+- **Cross-Database**: Handles queries across different databases using fully qualified INFORMATION_SCHEMA paths
+- **Parameter Binding**: Uses secure parameter binding to prevent SQL injection
+- **Atomic Operations**: Each table/column is processed independently for reliability
+
+#### Comparison: Streamlit App vs Stored Procedure
+
+| Feature | Streamlit App | Stored Procedure |
+|---------|---------------|------------------|
+| **User Interface** | ✅ Visual, interactive | ❌ Code-only |
+| **Bulk Operations** | ✅ Multi-select UI | ✅ Array parameter |
+| **Preview & Review** | ✅ Before applying | ❌ Direct application |
+| **Integration** | ❌ Manual process | ✅ Automation-ready |
+| **Filtering** | ✅ Show undocumented only | ❌ Processes all specified |
+| **Real-time Feedback** | ✅ Progress indicators | ✅ Summary return message |
+| **Error Handling** | ✅ User-friendly messages | ✅ Continues on errors |
+| **Model Testing** | ✅ Test model availability | ❌ Assumes model works |
+
+#### Best Practices
+
+1. **Start Small**: Test with a single table before processing large batches
+2. **Choose Appropriate Models**: Use `claude-4-sonnet` for complex tables, `llama3.1-8b` for simple ones
+3. **Monitor Costs**: Track Cortex usage, especially with premium models
+4. **Error Monitoring**: Check return messages for processing summaries
+5. **Incremental Processing**: Process tables in batches rather than all at once
+6. **Database Context**: Ensure the procedure has access to target databases
+
+---
+
 ## Quick Start
 
 ### Option 1: Streamlit in Snowflake (Recommended)
