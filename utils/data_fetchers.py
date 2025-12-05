@@ -370,21 +370,22 @@ def get_all_contacts(_conn: Any) -> List[str]:
         
         contact_options = ["None"]
         
-        for _, contact in result.iterrows():
-            # Handle different column names from SHOW CONTACTS
-            contact_name = (contact.get('name') or contact.get('NAME') or 
-                          contact.get('contact_name') or contact.get('CONTACT_NAME'))
-            
-            db_name = (contact.get('database_name') or contact.get('DATABASE_NAME') or 
-                     contact.get('contact_database') or contact.get('CONTACT_DATABASE'))
-            
-            schema_name = (contact.get('schema_name') or contact.get('SCHEMA_NAME') or
-                         contact.get('contact_schema') or contact.get('CONTACT_SCHEMA'))
-            
-            if contact_name and db_name and schema_name:
-                # Create fully qualified name
-                full_path = f'{db_name}.{schema_name}."{contact_name}"'
-                contact_options.append(full_path)
+        if not result.empty:
+            for _, contact in result.iterrows():
+                # Handle column names with quotes - try both quoted and unquoted versions
+                contact_name = (contact.get('"name"') or contact.get('name') or contact.get('NAME') or 
+                              contact.get('contact_name') or contact.get('CONTACT_NAME'))
+                
+                db_name = (contact.get('"database_name"') or contact.get('database_name') or contact.get('DATABASE_NAME') or 
+                         contact.get('contact_database') or contact.get('CONTACT_DATABASE'))
+                
+                schema_name = (contact.get('"schema_name"') or contact.get('schema_name') or contact.get('SCHEMA_NAME') or
+                             contact.get('contact_schema') or contact.get('CONTACT_SCHEMA'))
+                
+                if contact_name and db_name and schema_name:
+                    # Create fully qualified name
+                    full_path = f'{db_name}.{schema_name}."{contact_name}"'
+                    contact_options.append(full_path)
         
         return contact_options
         

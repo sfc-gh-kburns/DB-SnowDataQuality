@@ -93,6 +93,9 @@ def show_data_contacts_page(conn: Any):
             st.session_state['last_refresh'] = str(time.time())
             st.rerun()
     
+    # Initialize selected_tables as empty DataFrame to avoid UnboundLocalError
+    selected_tables = pd.DataFrame()
+    
     if selected_db and selected_schema:
         st.markdown("---")
         st.markdown("### 📋 Select Tables for Contact Assignment")

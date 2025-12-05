@@ -5,7 +5,6 @@ Database connection and utility functions for Snowflake Data Quality & Documenta
 import streamlit as st
 import pandas as pd
 import snowflake.connector
-import tomli
 from snowflake.snowpark.context import get_active_session
 import os
 from typing import Any, List, Dict, Optional
@@ -31,6 +30,13 @@ def get_snowflake_connection():
             
     # Try local connection
     try:
+        # Import tomli only when needed for local connections
+        try:
+            import tomli
+        except ImportError:
+            print("tomli package not available - local connections not supported in this environment")
+            return None
+            
         with open(os.path.expanduser('~/.snowflake/connections.toml'), 'rb') as f:
             config = tomli.load(f)
 
